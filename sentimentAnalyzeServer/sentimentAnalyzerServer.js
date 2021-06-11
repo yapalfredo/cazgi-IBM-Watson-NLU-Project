@@ -31,46 +31,56 @@ app.get("/", (req, res) => {
 });
 
 app.get("/url/emotion", (req, res) => {
-
-    const analyzeParams = {
-        'url': req.query.url,
-        'features': {
-            'emotion:': {}
+    if (req.query.url != "") {
+        const analyzeParams = {
+            'url': req.query.url,
+            'features': {
+                'entities': {
+                    'emotion': true,
+                    'limit': 1
+                }
+            }
         }
-    };
 
-    getNLUInstance().analyze(analyzeParams)
-        .then(analysisResults => {
-            e = analysisResults.result.emotion.document.emotion;
-            console.log(e);
-            return res.send(e);
-        }).catch(err => {
-            console.log('error', err);
-            return res.send("Error occured");
-        });
+        getNLUInstance().analyze(analyzeParams)
+            .then(analysisResults => {
 
-
+                //console.log(JSON.stringify(analysisResults.result.entities[0].emotion, null, 2));
+                return res.send(analysisResults.result.entities[0].emotion, null, 2);
+            }).catch(err => {
+                console.log('error', err);
+                return res.send("Error occured");
+            });
+    } else {
+        return res.send("Can't Analyze An Empty URL");
+    }
 });
 
 
 app.get("/url/sentiment", (req, res) => {
-    const analyzeParams = {
-        'url': req.query.url,
-        'features': {
-            'sentiment:': {}
+    if (req.query.url != "") {
+        const analyzeParams = {
+            'url': req.query.url,
+            'features': {
+                'entities': {
+                    'sentiment': true,
+                    'limit': 1
+                }
+            }
         }
-    };
 
-    getNLUInstance().analyze(analyzeParams)
-        .then(analysisResults => {
-            s = analysisResults.result.sentiment.document.label;
-            console.log(s);
-            // console.log(JSON.stringify(analysisResults, null, 2));
-            return res.send(s);
-        }).catch(err => {
-            console.log('error:', err);
-            return res.send("Error occured");
-        })
+        getNLUInstance().analyze(analyzeParams)
+            .then(analysisResults => {
+                // console.log(JSON.stringify(analysisResults.result.entities[0].sentiment.label));
+                return res.send(analysisResults.result.entities[0].sentiment.label, null, 2);
+            }).catch(err => {
+                console.log('error:', err);
+                return res.send("Error occured");
+            })
+    } else {
+        return res.send("Can't Analyze An Empty URL");
+    }
+
 });
 
 app.get("/text/emotion", (req, res) => {
@@ -89,14 +99,10 @@ app.get("/text/emotion", (req, res) => {
                 // return res.send(e);
                 //console.log(JSON.stringify(analysisResults.result.emotion.document.emotion, null, 2));
                 return res.send(analysisResults.result.emotion.document.emotion);
-
-
-
             }).catch(err => {
                 console.log('error', err);
                 return res.send("Error occured");
             });
-
     } else {
         return res.send("Can't Analyze Empty Input");
     }
